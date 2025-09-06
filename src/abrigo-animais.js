@@ -18,19 +18,29 @@ class AbrigoAnimais {
       ordemAnimais.split(',').map(animal => [animal, 'abrigo'])
     );
 
+    let p1 = [];
+    let p2 = [];
     for(const [animal] of animaisSolicitados){
       if(!this.#animaisAbrigo.has(animal)){
         return { erro: 'Animal inválido', lista: null };
       }
-    }
 
-    for (const [animal] of animaisSolicitados){
-      let brinquedosAnimal = this.#animaisAbrigo.get(animal).brinquedos;
-      if(this.#podeAdotar(brinquedosP1, brinquedosAnimal) && !this.#podeAdotar(brinquedosP2, brinquedosAnimal)){
-        animaisSolicitados[animal] = 'pessoa 1';
+      let pet = this.#animaisAbrigo.get(animal);
+
+      if(this.#podeAdotar(brinquedosP1, pet) && !this.#podeAdotar(brinquedosP2, pet)){
+        if(pet.nome == 'Loco' && p1.length != 0){
+          this.#adotando(pet, p1, 'pessoa 1', animaisSolicitados, brinquedosP1);
+        }else if(pet.nome != 'Loco'){
+          this.#adotando(pet, p1, 'pessoa 1', animaisSolicitados, brinquedosP1);
+        }
       }
-      if(!this.#podeAdotar(brinquedosP1, brinquedosAnimal) && this.#podeAdotar(brinquedosP2, brinquedosAnimal)){
-        animaisSolicitados[animal] = 'pessoa 2';
+
+      if(!this.#podeAdotar(brinquedosP1, pet) && this.#podeAdotar(brinquedosP2, pet)){
+        if(pet.nome == 'Loco' && p2.length != 0){
+          this.#adotando(pet, p2, 'pessoa 2', animaisSolicitados, brinquedosP1);
+        }else if(pet.nome != 'Loco'){
+          this.#adotando(pet, p2, 'pessoa 2', animaisSolicitados, brinquedosP1);
+        }
       }
     }
 
@@ -40,29 +50,74 @@ class AbrigoAnimais {
     }
     resultado.sort();
 
-    return { erro: null, lista : resultado};
+    console.log(resultado);
+    return {erro: null, lista: resultado};
   }
 
-  #podeAdotar(brinquedosPessoa, brinquedosAnimal){
-      let posicoes = [];
+  #podeAdotar(brinquedosPessoa, animal) {
+    let brinquedosAnimal = animal.brinquedos;
+    let posicoes = [];
 
-      brinquedosAnimal.map(
-        brinquedo => posicoes.push(brinquedosPessoa.indexOf(brinquedo))
-      );
+    brinquedosAnimal.map(
+      brinquedo => posicoes.push(brinquedosPessoa.indexOf(brinquedo))
+    );
 
-      if(posicoes.some(posicao => posicao == -1)){
+    if (posicoes.some(posicao => posicao == -1)) {
+      return false;
+    }
+
+    if(animal.nome == 'Loco'){
+      return true;
+    }
+
+    for (let i = 0; i < posicoes.length - 1; i++) {
+      if (posicoes.at(i) > posicoes.at(i + 1)) {
         return false;
       }
+    }
 
-      for(let i = 0; i < posicoes.length-1; i++){
-        if(posicoes.at(i) > posicoes.at(i+1)){
-          return false;
-        }
-      }
-      
-      return true;
+    return true;
   }
 
+  #adotando(pet, pessoa, pessoaNome, animais, brinquedosPessoa){
+    let brinquedosPet = pet.brinquedos;
+    if(pessoa.length >= 3){
+      return;
+    }
+
+    if (pet.especie != 'gato') {
+      pessoa.push(pet);
+      animais.set(pet.nome, pessoaNome);
+      return;
+    }
+
+    if (pessoa.length == 0) {
+      for (const brinquedo of brinquedosPet) {
+        let index = brinquedosPessoa.indexOf(brinquedo);
+        brinquedosPessoa.splice(index, 1);
+      }
+
+      pessoa.push(pet);
+      animais.set(pet.nome, pessoaNome);
+    } else {
+      for (const animal of pessoa) {
+        let brinquedosAnimal = animal.brinquedos; 
+        for(const brinquedo of brinquedosAnimal){
+          if(brinquedosPet.some(brinquedoPet => brinquedoPet == brinquedo)){
+            return;
+          }
+        }
+      }
+
+      for (const brinquedo of brinquedosPet) {
+        let index = brinquedosPessoa.indexOf(brinquedo);
+        brinquedosPessoa.splice(index, 1);
+      }
+
+      pessoa.push(pet);
+      animais.set(pet.nome, pessoaNome);
+    }
+  }
 }
 
 export { AbrigoAnimais as AbrigoAnimais };
