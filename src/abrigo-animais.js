@@ -1,4 +1,4 @@
-import { animal } from "./animal"; 
+import { animal } from "./animal"
 
 class AbrigoAnimais {
   #animaisAbrigo = new Map([
@@ -9,115 +9,115 @@ class AbrigoAnimais {
     ['Bola', new animal("Bola", "cão", ["CAIXA", "NOVELO"])],
     ['Bebe', new animal("Bebe", "cão", ["LASER", "RATO", "BOLA"])],
     ['Loco',  new animal("Loco", "jabuti", ["SKATE", "RATO"])]
-  ]);
+  ])
 
   encontraPessoas(brinquedosPessoa1, brinquedosPessoa2, ordemAnimais) {
-    let brinquedosP1 = brinquedosPessoa1.split(',');
-    let brinquedosP2 = brinquedosPessoa2.split(',');
+    let brinquedosP1 = brinquedosPessoa1.split(',').map(brinquedo => brinquedo.toUpperCase()) 
+    let brinquedosP2 = brinquedosPessoa2.split(',').map(brinquedo => brinquedo.toUpperCase()) 
     let animaisSolicitados = new Map(
       ordemAnimais.split(',').map(animal => [animal, 'abrigo'])
-    );
-
-    let p1 = [];
-    let p2 = [];
+    )
+    
+    let p1 = []
+    let p2 = []
     for(const [animal] of animaisSolicitados){
       if(!this.#animaisAbrigo.has(animal)){
-        return { erro: 'Animal inválido', lista: null };
+        return { erro: 'Animal inválido', lista: null }
       }
 
-      let pet = this.#animaisAbrigo.get(animal);
-
-      if(this.#podeAdotar(brinquedosP1, pet) && !this.#podeAdotar(brinquedosP2, pet)){
-        if(pet.nome == 'Loco' && p1.length != 0){
-          this.#adotando(pet, p1, 'pessoa 1', animaisSolicitados, brinquedosP1);
-        }else if(pet.nome != 'Loco'){
-          this.#adotando(pet, p1, 'pessoa 1', animaisSolicitados, brinquedosP1);
+      let pet = this.#animaisAbrigo.get(animal) 
+      if (!p1.includes(animal) && !p2.includes(animal)) {// verifica se alguem já adotou o animal (trata repetição de animal na entrada)
+        if (this.#podeAdotar(brinquedosP1, pet) && !this.#podeAdotar(brinquedosP2, pet)) {// verifica se a pessoa 1 pode adotar
+          if (pet.nome == 'Loco' && p1.length != 0) {// verifica se é o Loco (caso especial)
+            this.#adotando(pet, p1, 'pessoa 1', animaisSolicitados, brinquedosP1)
+          } else if (pet.nome != 'Loco') {
+            this.#adotando(pet, p1, 'pessoa 1', animaisSolicitados, brinquedosP1) 
+          }
         }
-      }
 
-      if(!this.#podeAdotar(brinquedosP1, pet) && this.#podeAdotar(brinquedosP2, pet)){
-        if(pet.nome == 'Loco' && p2.length != 0){
-          this.#adotando(pet, p2, 'pessoa 2', animaisSolicitados, brinquedosP1);
-        }else if(pet.nome != 'Loco'){
-          this.#adotando(pet, p2, 'pessoa 2', animaisSolicitados, brinquedosP1);
+        if (!this.#podeAdotar(brinquedosP1, pet) && this.#podeAdotar(brinquedosP2, pet)) {// verifica se a pessoa 1 pode adotar
+          if (pet.nome == 'Loco' && p2.length != 0) {// verifica se é o Loco (caso especial)
+            this.#adotando(pet, p2, 'pessoa 2', animaisSolicitados, brinquedosP2)
+          } else if (pet.nome != 'Loco') {
+            this.#adotando(pet, p2, 'pessoa 2', animaisSolicitados, brinquedosP2) 
+          }
         }
       }
     }
 
-    let resultado = [];
+    let resultado = [] 
     for(const [animal] of animaisSolicitados){
-      resultado.push(`${animal} - ${animaisSolicitados.get(animal)}`);
+      resultado.push(`${animal} - ${animaisSolicitados.get(animal)}`) 
     }
-    resultado.sort();
+    resultado.sort() 
 
-    console.log(resultado);
-    return {erro: null, lista: resultado};
+    return {erro: null, lista: resultado} 
   }
 
   #podeAdotar(brinquedosPessoa, animal) {
-    let brinquedosAnimal = animal.brinquedos;
-    let posicoes = [];
+    let brinquedosAnimal = animal.brinquedos 
+    let posicoes = [] 
 
     brinquedosAnimal.map(
       brinquedo => posicoes.push(brinquedosPessoa.indexOf(brinquedo))
-    );
+    ) 
 
     if (posicoes.some(posicao => posicao == -1)) {
-      return false;
+      return false 
     }
 
     if(animal.nome == 'Loco'){
-      return true;
+      return true 
     }
 
     for (let i = 0; i < posicoes.length - 1; i++) {
       if (posicoes.at(i) > posicoes.at(i + 1)) {
-        return false;
+        return false 
       }
     }
 
-    return true;
+    return true 
   }
 
   #adotando(pet, pessoa, pessoaNome, animais, brinquedosPessoa){
-    let brinquedosPet = pet.brinquedos;
+    let brinquedosPet = pet.brinquedos 
     if(pessoa.length >= 3){
-      return;
+      return 
     }
 
     if (pet.especie != 'gato') {
-      pessoa.push(pet);
-      animais.set(pet.nome, pessoaNome);
-      return;
+      pessoa.push(pet) 
+      animais.set(pet.nome, pessoaNome) 
+      return 
     }
 
     if (pessoa.length == 0) {
       for (const brinquedo of brinquedosPet) {
-        let index = brinquedosPessoa.indexOf(brinquedo);
-        brinquedosPessoa.splice(index, 1);
+        let index = brinquedosPessoa.indexOf(brinquedo) 
+        brinquedosPessoa.splice(index, 1) 
       }
 
-      pessoa.push(pet);
-      animais.set(pet.nome, pessoaNome);
+      pessoa.push(pet) 
+      animais.set(pet.nome, pessoaNome) 
     } else {
       for (const animal of pessoa) {
-        let brinquedosAnimal = animal.brinquedos; 
+        let brinquedosAnimal = animal.brinquedos  
         for(const brinquedo of brinquedosAnimal){
           if(brinquedosPet.some(brinquedoPet => brinquedoPet == brinquedo)){
-            return;
+            return 
           }
         }
       }
 
       for (const brinquedo of brinquedosPet) {
-        let index = brinquedosPessoa.indexOf(brinquedo);
-        brinquedosPessoa.splice(index, 1);
+        let index = brinquedosPessoa.indexOf(brinquedo) 
+        brinquedosPessoa.splice(index, 1) 
       }
 
-      pessoa.push(pet);
-      animais.set(pet.nome, pessoaNome);
+      pessoa.push(pet) 
+      animais.set(pet.nome, pessoaNome) 
     }
   }
 }
 
-export { AbrigoAnimais as AbrigoAnimais };
+export { AbrigoAnimais as AbrigoAnimais } 

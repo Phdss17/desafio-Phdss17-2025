@@ -86,4 +86,45 @@ describe('Abrigo de Animais', () => {
     expect(resultado.lista[3]).toBe('Rex - pessoa 2');
     expect(resultado.erro).toBeFalsy();
   });
+
+  test('Trata minusculas nos brinquedos', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas(
+      'BOLA,LASER',
+      'LaSeR,sKAtE,RAtO,BolA,CAixA,noVelO', 
+      'Rex,Loco,Bola,Bebe'
+    );
+  
+    expect(resultado.lista[0]).toBe('Bebe - abrigo');
+    expect(resultado.lista[1]).toBe('Bola - pessoa 2');
+    expect(resultado.lista[2]).toBe('Loco - pessoa 2');
+    expect(resultado.lista[3]).toBe('Rex - pessoa 2');
+    expect(resultado.erro).toBeFalsy();
+  });
+
+  test('Ninguém adota ninguém', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas(
+      'CAIXA,NOVELO', 
+      'NOVELO,CAIXA', 
+      'Rex'           
+    );
+    expect(resultado.lista[0]).toBe('Rex - abrigo');
+  });
+
+  test('Animal repetido na entrada deve ser ignorado', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas(
+      'RATO,BOLA',
+      'LASER,CAIXA', 
+      'Rex,Rex'
+    );
+    expect(resultado.lista).toHaveLength(1);
+  });
+
+  test('Então não é de ninguém (os dois podem, então fica no abrigo)', () => {
+    const resultado = new AbrigoAnimais().encontraPessoas(
+      'RATO,BOLA', 
+      'RATO,bola',
+      'Rex'
+    );
+    expect(resultado.lista[0]).toBe('Rex - abrigo');
+  });
 });
